@@ -1,8 +1,16 @@
-import React, { PureComponent } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import classnames from 'classnames/bind';
+import { connect } from 'react-redux';
 
+import Workshop from './Workshop.jsx';
 import styles from './workshops.styl';
 import workshopsInfo from './workshops.json';
+import {
+  hideWorkshopModal,
+  showWorkshopModal,
+  workshopUiName,
+  workshopsSelector
+} from './redux.js';
 
 import TitleCard from '../Title-Card.jsx';
 import ActionButton from '../Action-Button.jsx';
@@ -26,6 +34,24 @@ const images = {
 };
 const cx = classnames.bind(styles);
 const propTypes = {};
+workshopsInfo.forEach(({ name }) => {
+  propTypes[name] = PropTypes.shape({
+    show: PropTypes.func.isRequired,
+    hide: PropTypes.func.isRequired
+  });
+  propTypes[workshopUiName(name)] = PropTypes.bool;
+});
+const mapStateToProps = workshopsSelector;
+function mapDispatchToProps(dispatch) {
+  const dispatchers = workshopsInfo.reduce((dispatchers, { name } = {}) => {
+    dispatchers[name] = {
+      show: () => dispatch(showWorkshopModal(name)),
+      hide: () => dispatch(hideWorkshopModal(name))
+    };
+    return dispatchers;
+  }, {});
+  return () => dispatchers;
+}
 const seen = {};
 const instructors = workshopsInfo
   .filter(workshop => {
@@ -51,46 +77,21 @@ const instructors = workshopsInfo
       </div>
     </div>
   ));
-const workshops = workshopsInfo.map(({
-  name,
-  date,
-  title,
-  company,
-  instructor,
-  difficulty
-}) => (
-  <div
-    className={ cx('workshop-container') }
-    key={ name }
-    >
-    <div className={ cx('workshop-info') }>
-      <header className={ cx('title-container') }>
-        <h4 className={ cx('title') }>
-          { difficulty }
-        </h4>
-      </header>
-      <h2 className={ cx('name') }>
-        { name }
-      </h2>
-      <h3 className={ cx('instructor') }>
-        { instructor }
-      </h3>
-      <h4 className={ cx('inst-title') }>
-        { title }, { company }
-      </h4>
-    </div>
-    <div className={ cx('date') }>
-      { date }
-    </div>
-  </div>
-));
-export default class Workshops extends PureComponent {
+export class Workshops extends PureComponent {
   render() {
+    const workshops = workshopsInfo.map(info => (
+      <Workshop
+        { ...info }
+        className={ cx('workshop-container') }
+        closeModal={ this.props[info.name]['hide'] }
+        key={ info.name }
+        openModal={ this.props[info.name]['show'] }
+        showModal={ this.props[workshopUiName(info.name)] }
+      />
+    ));
     return (
       <div className={ cx('workshops') }>
-        <TitleCard
-          id='Workshops'
-          >
+        <TitleCard id='Workshops'>
           Workshops
         </TitleCard>
         <div className={ cx('info') }>
@@ -101,7 +102,8 @@ export default class Workshops extends PureComponent {
             or select tracks for multi-day instruction and discounts.
           </h3>
           <h5>
-            Please note: ALL of our workshops assume that you are comfortable using JavaScript.
+            Please note: ALL of our workshops assume that you
+            are comfortable using JavaScript.
           </h5>
         </div>
         <div className={ cx('instructors-list') }>
@@ -141,5 +143,11 @@ export default class Workshops extends PureComponent {
     );
   }
 }
+
 Workshops.displayName = 'Workshops';
 Workshops.propTypes = propTypes;
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Workshops);
