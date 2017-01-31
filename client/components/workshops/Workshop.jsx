@@ -4,6 +4,8 @@ import classnames from 'classnames/bind';
 
 import styles from './workshops.styl';
 
+import introReactHeader from './workshop_images/intro-react.png';
+
 const descriptionLength = 300;
 const cx = classnames.bind(styles);
 const propTypes = {
@@ -39,6 +41,7 @@ export default class Workshop extends PureComponent {
       date,
       description,
       difficulty,
+      headerImage,
       instructor,
       name,
       openModal,
@@ -94,6 +97,9 @@ export default class Workshop extends PureComponent {
             onRequestClose={ closeModal }
             overlayClassName={ cx('overlay') }
             >
+            <div className={ cx('header-image') }>
+              { headerImage }
+            </div>
             <div className={ cx('brief') }>
               { description }
             </div>

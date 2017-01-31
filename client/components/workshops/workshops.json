@@ -16,6 +16,7 @@
   },
   {
     "id": "2",
+    "headerImage": "./workshop_images/intro-react.png",
     "name": "Intro to React",
     "brief": "Learn the basics of building Composable UIs in React, by building a real-world application to explore best practices styling, testing, and managing data inside React Components. ",
     "description": "Learn the basics of building Composable UIs in React, by building a real-world application to explore best practices styling, testing, and managing data inside React Components. ",
